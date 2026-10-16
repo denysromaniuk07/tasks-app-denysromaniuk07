@@ -7,10 +7,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [tasks-api, title-normalizer]
     steps:
-		strategy:
-			matrix:
-				service: [tasks-api, title-normalizer]
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
