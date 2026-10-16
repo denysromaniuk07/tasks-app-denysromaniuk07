@@ -1,8 +1,8 @@
 name: CI
 
 on:
-	push:
-		branches: [ "main" ]
+  push:
+    branches: ["main"]
 
 jobs:
   test:
@@ -12,6 +12,6 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      -	run: pip install -r services/tasks-api/requirements.txt 
-      -	run: pytest -c services/tasks-api
+      - run: pip install -r services/tasks-api/requirements.txt
+      - run: pytest -c services/tasks-api/pytest.ini services/tasks-api/tests
 
