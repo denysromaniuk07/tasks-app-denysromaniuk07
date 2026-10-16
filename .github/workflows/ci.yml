@@ -8,10 +8,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+		strategy:
+			matrix:
+				service: [tasks-api, title-normalizer]
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - run: pip install -r services/tasks-api/requirements.txt
-      - run: pytest -c services/tasks-api/pytest.ini services/tasks-api/tests
+      - run: pip install -r services/${{ matrix.service }}/requirements.txt
+      - run: pytest -c services/${{ matrix.service }}/pytest.ini services/${{ matrix.service }}/tests
+			
 
