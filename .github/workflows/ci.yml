@@ -16,6 +16,6 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r services/${{ matrix.service }}/requirements.txt
-      - run: pytest -c services/${{matrix.service}}
-
+      - run: pytest -c services/${{ matrix.service }}/pytest.ini services/${{ matrix.service }}/tests
+			
 
