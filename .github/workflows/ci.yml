@@ -8,6 +8,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         service: [tasks-api, title-normalizer]
     steps:
@@ -15,10 +16,14 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - run: 
-          pip install -r services/${{ matrix.service }}/requirements.txt
-      - run: 
-          pytest services/${{ matrix.service }}
+      - run: pip install -r services/${{ matrix.service }}/requirements.txt
+      - run: pytest -rA -c "services/${{ matrix.service }}/pytest.ini" "services/${{ matrix.service }}/tests" | tee "${{ matrix.service }}-test-report.txt"
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        if(): always()
+        with:
+          name: "${{ matrix.service }}-test-report"
+          path: "${{ matrix.service }}-test-report.txt"
 
 
 
