@@ -2,18 +2,23 @@ name: CI
 
 on:
   push:
+    branches: ["main"]
+
+jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         service: [tasks-api, title-normalizer]
-      - run: pip install -r services/tasks-api/requirements.txt
-      - run: pip install -r services/title-normalizer/requirements.txt
-      - run: pytest -c services/tasks-api/pytest.ini services/tasks-api/tests
-      - run: pytest -c services/title-normalizer/pytest.ini services/title-normalizer/tests
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - run: pip install -r services/${{ matrix.service }}/requirements.txt
-      - run: pytest services/${{ matrix.service }}
-			
+      - run: 
+          pip install -r services/${{ matrix.service }}/requirements.txt
+      - run: 
+          pytest services/${{ matrix.service }}
+
+
 
