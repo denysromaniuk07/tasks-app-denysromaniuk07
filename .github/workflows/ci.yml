@@ -1,0 +1,16 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r services/tasks-api/requirements.txt -r services/title-normalizer/requirements.txt
+      - run: pytest -c services/tasks-api/pytest.ini
+      - run: pytest -c services/title-normalizer/pytest.ini
+
