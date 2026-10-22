@@ -56,6 +56,12 @@ jobs:
         name: title-normalizer-3.12-bandit-report
         path: _site
     - run: mv _site/tasks-api-3.12-bandit-report.html _site/index.html
+    - run: |
+        cat > _site/index.html <<EOF
+        <h1>Bandit Reports</h1>
+        <p><a href="tasks-api-3.12-bandit-report.html">tasks-api</a></p>
+        <p><a href="title-normalizer-3.12-bandit-report.html">title-normalizer</a></p>
+        EOF
     - uses: actions/upload-pages-artifact@v5
       with:
         path: _site/
