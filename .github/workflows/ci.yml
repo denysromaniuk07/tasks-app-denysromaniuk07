@@ -2,48 +2,90 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   test:
+    name: Test (${{ matrix.service }})
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
         service: [tasks-api, title-normalizer]
+    env:
+      SERVICE_DIR: services/${{ matrix.service }}
+      REPORT_FILE: ${{ matrix.service }}-test-report.txt
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r services/${{ matrix.service }}/requirements.txt
-      - run: pytest -rA -c "services/${{ matrix.service }}/pytest.ini" "services/${{ matrix.service }}/tests" | tee "${{ matrix.service }}-test-report.txt"
-        shell: bash
-      - uses: actions/upload-artifact@v4
-        if: always()
+          cache: pip
+          cache-dependency-path: services/${{ matrix.service }}/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r "$SERVICE_DIR/requirements.txt"
+
+      - name: Run tests
+        run: |
+          set -o pipefail
+          pytest -rA -c "$SERVICE_DIR/pytest.ini" "$SERVICE_DIR/tests" | tee "$REPORT_FILE"
+
+      - name: Upload test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
         with:
-          name: "${{ matrix.service }}-test-report"
-          path: "${{ matrix.service }}-test-report.txt"
+          name: ${{ matrix.service }}-test-report
+          path: ${{ env.REPORT_FILE }}
+          if-no-files-found: warn
+          retention-days: 14
 
   deploy:
-    needs: run tests
+    name: Publish reports to GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
     runs-on: ubuntu-latest
-    enviroment:
-      name: github-pages
-      url: ${{steps.deployment.outputs.page_url}}
+    timeout-minutes: 10
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     permissions:
       pages: write
-      id_token: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      uses: actions/download-artifact@v7
-      with:
-        name: tasks-api-3.12-bandit-report
-        path: _site
-      run: ls _site
-      uses: actions/upload-pages-artifact@v5
-      with:
-        path: site/
-      uses: actions/deploy-page@v5
+      - name: Download test reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*-test-report"
+          path: site/reports
+          merge-multiple: true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+      - name: Deploy to GitHub Pages
         id: deployment
-
-
+        uses: actions/deploy-pages@v4
