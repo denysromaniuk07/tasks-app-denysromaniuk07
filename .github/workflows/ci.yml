@@ -72,6 +72,30 @@ jobs:
             -t "$IMAGE_TAG" "services/${{matrix.service}}"
           docker push "$IMAGE_TAG"
 
+  smoke_test:
+    needs: build_images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker compose up -d --build
+      - name: Wait for tasks-api
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf localhost:5000/health && exit 0
+            sleep 1
+          done
+          docker compose logs
+          exit 1
+      - name: Create a task and check normalized
+        run: |
+          RESPONSE=$(curl -s -X POST localhost:5000/tasks \
+            -H 'Content-Type: application/json' \
+            -d '{"title": "  buy   MILK "}')
+          echo "$RESPONSE"
+          echo "$RESPONSE" | python3 -c 'import sys, json; sys.exit(0 if json.load(sys.stdin).get("normalized") is True else 1)'
+      - if: always()
+        run: docker compose down
+
   deploy:
     needs: run_tests
 #    if: github.event.pull_request.merged == true

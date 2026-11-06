@@ -1,14 +1,20 @@
 services:
   tasks-api:
-    build:
-       ./services/tasks-api
+    build: ./services/tasks-api
     ports:
       - "5000:5000"
     environment:
       NORMALIZER_URL: http://title-normalizer:5001
+    depends_on:
+      title-normalizer:
+        condition: service_healthy
 
   title-normalizer:
-    build:
-       ./services/title-normalizer
+    build: ./services/title-normalizer
     ports:
       - "5001:5001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
