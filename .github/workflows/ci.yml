@@ -142,7 +142,7 @@ jobs:
         <p><a href="tasks-api-3.12-bandit-report.html">tasks-api</a></p>
         <p><a href="title-normalizer-3.12-bandit-report.html">title-normalizer</a></p>
         EOF
-    - uses: actions/upload-pages-artifact@v5
+    - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
       with:
         path: _site/
     - uses: actions/deploy-pages@v5
