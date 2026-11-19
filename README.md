@@ -1,6 +1,6 @@
 # Tasks app: two small services
 
-A to-do API that calls a tiny stateless function to clean up task titles.
+A to-do API that calls a tiny stateless function to clean up task titles before saving them.
 
 | Service | Folder | Port | What it does |
 |---|---|---|---|
