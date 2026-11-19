@@ -16,7 +16,7 @@ jobs:
         service: [tasks-api, title-normalizer] # ${{matrix.service}}
         python-version: ["3.10", "3.11", "3.12"] # ${{matrix.python-version}}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@v7
         with:
           python-version: ${{matrix.python-version}}
@@ -42,7 +42,7 @@ jobs:
       matrix:
         service: [tasks-api, title-normalizer]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: docker build -t ${{matrix.service}} services/${{matrix.service}}
 
   scan_images:
@@ -55,7 +55,7 @@ jobs:
       matrix:
         service: [tasks-api, title-normalizer] # ${{matrix.service}}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: docker build -t ${{matrix.service}} services/${{matrix.service}}
       # trivy-action v0.36.0
       - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
@@ -76,7 +76,7 @@ jobs:
       matrix:
         service: [tasks-api, title-normalizer]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Log in to GitHub Container Registry
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -96,7 +96,7 @@ jobs:
     needs: build_images
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: docker compose up -d --build
       - name: Wait for tasks-api
         run: |
