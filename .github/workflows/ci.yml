@@ -16,13 +16,13 @@ jobs:
         service: [tasks-api, title-normalizer] # ${{matrix.service}}
         python-version: ["3.10", "3.11", "3.12"] # ${{matrix.python-version}}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{matrix.python-version}}
       - run: pip install -r services/${{matrix.service}}/requirements.txt
       - run: pytest -rA services/${{matrix.service}} > ${{matrix.service}}-${{matrix.python-version}}-test-report.txt
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: ${{matrix.service}}-${{matrix.python-version}} test report
@@ -31,7 +31,7 @@ jobs:
       - run: bandit -r services/${{matrix.service}} -f html -o ${{matrix.service}}-${{matrix.python-version}}-bandit-report.html
         continue-on-error: true
       - name: Upload Bandit Report as Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{matrix.service}}-${{matrix.python-version}}-bandit-report
           path: ${{matrix.service}}-${{matrix.python-version}}-bandit-report.html
@@ -42,7 +42,7 @@ jobs:
       matrix:
         service: [tasks-api, title-normalizer]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: docker build -t ${{matrix.service}} services/${{matrix.service}}
 
   scan_images:
@@ -55,7 +55,7 @@ jobs:
       matrix:
         service: [tasks-api, title-normalizer] # ${{matrix.service}}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: docker build -t ${{matrix.service}} services/${{matrix.service}}
       # trivy-action v0.36.0
       - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
@@ -76,7 +76,7 @@ jobs:
       matrix:
         service: [tasks-api, title-normalizer]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Log in to GitHub Container Registry
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -96,7 +96,7 @@ jobs:
     needs: build_images
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: docker compose up -d --build
       - name: Wait for tasks-api
         run: |
@@ -127,11 +127,11 @@ jobs:
       pages: write
       id-token: write
     steps:
-    - uses: actions/download-artifact@v7
+    - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
       with:
         name: tasks-api-3.12-bandit-report
         path: _site
-    - uses: actions/download-artifact@v7
+    - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
       with:
         name: title-normalizer-3.12-bandit-report
         path: _site
@@ -142,10 +142,10 @@ jobs:
         <p><a href="tasks-api-3.12-bandit-report.html">tasks-api</a></p>
         <p><a href="title-normalizer-3.12-bandit-report.html">title-normalizer</a></p>
         EOF
-    - uses: actions/upload-pages-artifact@v5
+    - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
       with:
         path: _site/
-    - uses: actions/deploy-pages@v5
+    - uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
       id: deployment
 
   checks_passed:
