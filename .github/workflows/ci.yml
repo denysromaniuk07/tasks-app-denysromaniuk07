@@ -147,3 +147,18 @@ jobs:
         path: _site/
     - uses: actions/deploy-pages@v5
       id: deployment
+
+  checks_passed:
+    needs: [run_tests, build_images, scan_images]
+    # without this, a failed need would make this job skipped, and a skipped required check counts as passed
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Fail unless run_tests, build_images and scan_images all succeeded
+        if: needs.run_tests.result != 'success' || needs.build_images.result != 'success' || needs.scan_images.result != 'success'
+        run: |
+          echo "run_tests: ${{ needs.run_tests.result }}"
+          echo "build_images: ${{ needs.build_images.result }}"
+          echo "scan_images: ${{ needs.scan_images.result }}"
+          exit 1
